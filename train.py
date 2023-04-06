@@ -17,6 +17,8 @@ def main(config, mle_log, log_ext=""):
         from utils.es import train_es as train_fn
     elif config.train_type == "PPO":
         from utils.ppo import train_ppo as train_fn
+    elif config.train_type == "DQN":
+        from utils.dqn import train_dqn as train_fn
     else:
         raise ValueError("Unknown train_type. Has to be in ('ES', 'PPO').")
 
