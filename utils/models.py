@@ -25,6 +25,8 @@ def get_model_ready(rng, config, speed=False):
             model = GaussianSeparateMLP(
                 **config.network_config, num_output_units=env.num_actions
             )
+    elif config.train_type == "DQN":
+        model = DQN(**config.network_config, num_output_units=env.num_actions)
 
     # Only use feedforward MLP in speed evaluations!
     if speed and config.network_name == "LSTM":
@@ -189,3 +191,18 @@ class GaussianSeparateMLP(nn.Module):
         scale = jax.nn.softplus(log_scale) + self.min_std
         pi = tfp.distributions.MultivariateNormalDiag(mu, scale)
         return v, pi
+
+
+class DQN(nn.Module):
+
+    num_output_units: int
+    num_hidden_units: int
+    num_hidden_layers: int
+    model_name: str = "DQN-mlp"
+
+    @nn.compact
+    def __call__(self, x, rng):
+        for _ in range(self.num_hidden_layers):
+            x = nn.relu(nn.Dense(self.num_hidden_units)(x))
+        x = nn.Dense(self.num_output_units)(x)
+        return x
